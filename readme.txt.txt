@@ -1,0 +1,1 @@
+In order to run the program please go to the dist folder and run Main.exe

@@ -1,6 +1,22 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, colorchooser
 
+class RoundedButtonStyle(ttk.Style):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.theme_create("Rounded.TButton", parent="alt", settings={
+            "TButton": {
+                "configure": {"padding": 5, "width": 12, "anchor": "center", "font": ('Arial', 12)},
+                "map": {
+                    "foreground": [("active", "#333333")],
+                    "background": [("active", "#DDDDDD")],
+                    "relief": [("pressed", "sunken"), ("!pressed", "raised")],
+                    "bordercolor": [("focus", "#333333")]
+                }
+            }
+        })
+        self.configure("Rounded.TButton", padding=10, relief="raised", borderwidth=2)
+
 class ColorSetCreator:
     def __init__(self, master):
         self.master = master
@@ -9,12 +25,9 @@ class ColorSetCreator:
 
         self.color_set = {}
 
-        # Create style for ttk widgets
-        self.style = ttk.Style()
-
-        # Configure style for buttons
-        self.style.configure('TButton', foreground='black', background='#666666', font=('Arial', 12), padding=10)
-        self.style.map('TButton', background=[('active', '#999999')])
+        # Create custom style for rounded buttons
+        self.rounded_button_style = RoundedButtonStyle()
+        self.rounded_button_style.configure("Rounded.TButton", borderwidth=2, relief="raised", bordercolor="#333333")
 
         # Hex Color Code entry
         self.label_code = ttk.Label(master, text="Hex Color Code:", foreground="white", background="black")
@@ -23,11 +36,11 @@ class ColorSetCreator:
         self.color_code_entry.grid(row=0, column=1, padx=10, pady=10)
 
         # Pick Color button
-        self.pick_color_button = ttk.Button(master, text="Pick Color", command=self.pick_color)
+        self.pick_color_button = ttk.Button(master, text="Pick Color", command=self.pick_color, style="Rounded.TButton")
         self.pick_color_button.grid(row=0, column=2, padx=10, pady=10)
 
         # Add Color button
-        self.add_button = ttk.Button(master, text="Add Color", command=self.add_color)
+        self.add_button = ttk.Button(master, text="Add Color", command=self.add_color, style="Rounded.TButton")
         self.add_button.grid(row=0, column=3, padx=10, pady=10)
 
         # Color Display frame
@@ -35,8 +48,11 @@ class ColorSetCreator:
         self.color_display_frame.grid(row=1, column=0, columnspan=4, padx=10, pady=10, sticky='ew')
 
         # Export Color Set button
-        self.export_button = ttk.Button(master, text="Export Color Set", command=self.export_color_set)
-        self.export_button.grid(row=2, column=0, columnspan=4, padx=10, pady=10)
+        self.export_button = ttk.Button(master, text="Export Color Set", command=self.export_color_set, style="Rounded.TButton")
+        self.export_button.grid(row=2, column=0, columnspan=4, padx=10, pady=10, sticky='ew')
+
+        # Bind double-click event to color display frame
+        self.color_display_frame.bind('<Double-Button-1>', self.edit_color)
 
     def pick_color(self):
         color_code = colorchooser.askcolor()[1]  # Ask for a color and get its hex code
@@ -83,7 +99,7 @@ class ColorSetCreator:
         # Re-populate color display frame with updated color set
         row = 0
         for color_id, color_code in self.color_set.items():
-            color_label = tk.Label(self.color_display_frame, text=color_id, foreground='white', background=color_code, font=('Arial', 12), padx=5, pady=5)
+            color_label = ttk.Label(self.color_display_frame, text=color_id, foreground='white', background=color_code, font=('Arial', 12), padding=5)
             color_label.grid(row=row, column=0, padx=5, pady=5, sticky='ew')
             color_label.bind('<Button-1>', lambda event, id=color_id: self.edit_color(event, id))
 
@@ -106,11 +122,11 @@ class ColorSetCreator:
             color_code_entry_edit.grid(row=0, column=1, padx=10, pady=10)
 
             # Update Color button in edit window
-            update_button = ttk.Button(edit_window, text="Update Color", command=lambda: self.update_color(color_id, color_code_entry_edit.get(), edit_window))
+            update_button = ttk.Button(edit_window, text="Update Color", command=lambda: self.update_color(color_id, color_code_entry_edit.get(), edit_window), style="Rounded.TButton")
             update_button.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
 
             # Delete Color button in edit window
-            delete_button = ttk.Button(edit_window, text="Delete Color", command=lambda: self.delete_color(color_id, edit_window))
+            delete_button = ttk.Button(edit_window, text="Delete Color", command=lambda: self.delete_color(color_id, edit_window), style="Rounded.TButton")
             delete_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
 
     def update_color(self, color_id, new_color_code, edit_window):
